@@ -14,6 +14,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 
 include_directories(src/
         vendor/glfw/include/
+        vendor/glm/
         C:/VulkanSDK/1.2.170.0/Include)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
