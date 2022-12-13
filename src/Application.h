@@ -31,6 +31,13 @@ private:
     // vulkan helper functions
     void InitVulkan();
     void CreateInstance();
+    bool CheckValidationLayerSupport();
+    std::vector<const char*> GetRequiredExtensions();
+
+    void SetupDebugManager();
+    void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
 
 private:
@@ -41,6 +48,13 @@ private:
 
     // vulkan objects
     VkInstance _instance;
+    VkDebugUtilsMessengerEXT _debugMessenger;
+#ifndef NDEBUG
+    const bool enableValidationLayers = true;
+#else
+    const bool enableValidationLayers = false;
+#endif
+
 };
 
 

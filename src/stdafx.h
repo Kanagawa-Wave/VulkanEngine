@@ -6,6 +6,7 @@
 #define VULKANENGINE_STDAFX_H
 
 #include <exception>
+#include <vector>
 #include <iostream>
 
 #endif //VULKANENGINE_STDAFX_H
