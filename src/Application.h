@@ -5,6 +5,7 @@
 #ifndef VULKANENGINE_APPLICATION_H
 #define VULKANENGINE_APPLICATION_H
 
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 class Application {
@@ -27,13 +28,19 @@ private:
 private:
     void InitWindow();
 
+    // vulkan helper functions
     void InitVulkan();
+    void CreateInstance();
+
 
 private:
     // window vars
     uint32_t _width = 0;
     uint32_t _height = 0;
     GLFWwindow *_window = nullptr;
+
+    // vulkan objects
+    VkInstance _instance;
 };
 
 
