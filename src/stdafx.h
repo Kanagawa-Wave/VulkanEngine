@@ -7,6 +7,14 @@
 
 #include <exception>
 #include <vector>
+#include <memory>
+#include <optional>
 #include <iostream>
+
+#ifndef NDEBUG
+const bool enableValidationLayers = true;
+#else
+const bool enableValidationLayers = false;
+#endif
 
 #endif //VULKANENGINE_STDAFX_H

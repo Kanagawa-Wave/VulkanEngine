@@ -8,53 +8,36 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "rhi/VulkanInstance.h"
+#include "rhi/VulkanDevice.h"
+
 class Application {
 public:
     Application() = delete;
-
-    Application(uint32_t width, uint32_t height);
-
+    Application(int width, int height);
     ~Application();
 
     void Run();
 
 private:
     void OnInit();
-
     void OnUpdate();
-
     void OnDestroy();
 
 private:
     void InitWindow();
-
-    // vulkan helper functions
     void InitVulkan();
-    void CreateInstance();
-    bool CheckValidationLayerSupport();
-    std::vector<const char*> GetRequiredExtensions();
-
-    void SetupDebugManager();
-    void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
-    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
-
 
 private:
     // window vars
-    uint32_t _width = 0;
-    uint32_t _height = 0;
-    GLFWwindow *_window = nullptr;
+    int _width = 0;
+    int _height = 0;
+    GLFWwindow* _window = nullptr;
 
-    // vulkan objects
-    VkInstance _instance;
-    VkDebugUtilsMessengerEXT _debugMessenger;
-#ifndef NDEBUG
-    const bool enableValidationLayers = true;
-#else
-    const bool enableValidationLayers = false;
-#endif
-
+    // application owns all vulkan objects, ownership not passed when making function calls
+    // instance, device
+    std::unique_ptr<VulkanInstance> _instance = nullptr;
+    std::unique_ptr<VulkanDevice> _device = nullptr;
 };
 
 

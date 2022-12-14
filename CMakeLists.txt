@@ -18,8 +18,8 @@ include_directories(src/
         C:/VulkanSDK/1.2.170.0/Include)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
-file(GLOB PROJECT_HEADERS src/*.h)
-file(GLOB PROJECT_SOURCES src/*.cpp)
+file(GLOB PROJECT_HEADERS src/*.h src/rhi/*.h)
+file(GLOB PROJECT_SOURCES src/*.cpp src/rhi/*.cpp)
 file(GLOB PROJECT_SHADERS shader/*.comp
         shader/*.frag
         shader/*.geom
