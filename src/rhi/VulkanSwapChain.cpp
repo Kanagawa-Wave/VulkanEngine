@@ -9,6 +9,7 @@
 
 VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, GLFWwindow* window) : _pDevice(device->GetDevice()) {
     CreateSwapChain(device, window);
+    CreateImageViews(device);
 }
 
 VulkanSwapChain::~VulkanSwapChain() {
@@ -63,11 +64,11 @@ void VulkanSwapChain::CreateSwapChain(VulkanDevice* device, GLFWwindow* window) 
         std::cout << "Successfully created swap chain!" << std::endl;
 
     vkGetSwapchainImagesKHR(device->GetDevice(), _swapChain, &imageCount, nullptr);
-    swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(device->GetDevice(), _swapChain, &imageCount, swapChainImages.data());
+    _swapChainImages.resize(imageCount);
+    vkGetSwapchainImagesKHR(device->GetDevice(), _swapChain, &imageCount, _swapChainImages.data());
 
-    swapChainImageFormat = surfaceFormat.format;
-    swapChainExtent = extent;
+    _swapChainImageFormat = surfaceFormat.format;
+    _swapChainExtent = extent;
 }
 
 VkSurfaceFormatKHR VulkanSwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
@@ -133,3 +134,27 @@ SwapChainSupportDetails VulkanSwapChain::QuerySwapChainSupport(VkPhysicalDevice 
     return details;
 }
 
+void VulkanSwapChain::CreateImageViews(VulkanDevice* device) {
+    _swapChainImageViews.resize(_swapChainImages.size());
+
+    for (size_t i = 0; i < _swapChainImages.size(); i++) {
+        VkImageViewCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.image = _swapChainImages[i];
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = _swapChainImageFormat;
+        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+
+        if (vkCreateImageView(device->GetDevice(), &createInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create image views!");
+        }
+    }
+}

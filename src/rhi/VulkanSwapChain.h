@@ -26,11 +26,13 @@ private:
     VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
     VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
     void CreateSwapChain(VulkanDevice *device, GLFWwindow *window);
+    void CreateImageViews(VulkanDevice* device);
 
     VkSwapchainKHR _swapChain = VK_NULL_HANDLE;
-    std::vector<VkImage> swapChainImages;
-    VkFormat swapChainImageFormat{};
-    VkExtent2D swapChainExtent{};
+    std::vector<VkImage> _swapChainImages;
+    std::vector<VkImageView> _swapChainImageViews;
+    VkFormat _swapChainImageFormat{};
+    VkExtent2D _swapChainExtent{};
 
     // do not own device
     const VkDevice& _pDevice;
