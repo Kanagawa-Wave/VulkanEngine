@@ -23,12 +23,13 @@ private:
     VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
     void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
-    // vulkan objects
-    VkInstance _instance = VK_NULL_HANDLE;
+
 public:
-    const VkInstance& GetInstance() const { return _instance; }
+    static VkInstance& Instance() { return _instance; }
 
 private:
+    // vulkan objects
+    static VkInstance _instance;
     VkDebugUtilsMessengerEXT _debugMessenger = VK_NULL_HANDLE;
 };
 

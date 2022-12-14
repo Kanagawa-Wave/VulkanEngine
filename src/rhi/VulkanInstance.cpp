@@ -6,6 +6,8 @@
 #include "stdafx.h"
 #include "VulkanInstance.h"
 
+VkInstance VulkanInstance::_instance = VK_NULL_HANDLE;
+
 VulkanInstance::VulkanInstance() {
     CreateInstance();
     SetupDebugManager();
@@ -87,6 +89,18 @@ std::vector<const char *> VulkanInstance::GetRequiredExtensions() {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    uint32_t extensionCount;
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensions.data());
+
+    std::cout << "Available extensions: \n";
+
+    for (const auto& availableExtension : availableExtensions) {
+        std::cout << '\t' << availableExtension.extensionName << std::endl;
+    }
 
     std::vector<const char*> extensions;
     std::cout << "GLFW required extensions: \n";

@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 
 #include "rhi/VulkanInstance.h"
+#include "rhi/VulkanSurface.h"
 #include "rhi/VulkanDevice.h"
 
 class Application {
@@ -35,8 +36,9 @@ private:
     GLFWwindow* _window = nullptr;
 
     // application owns all vulkan objects, ownership not passed when making function calls
-    // instance, device
+    // instance, surface, device
     std::unique_ptr<VulkanInstance> _instance = nullptr;
+    std::unique_ptr<VulkanSurface> _surface = nullptr;
     std::unique_ptr<VulkanDevice> _device = nullptr;
 };
 
