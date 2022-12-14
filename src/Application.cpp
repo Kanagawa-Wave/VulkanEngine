@@ -42,6 +42,7 @@ void Application::InitVulkan() {
     _instance = std::make_unique<VulkanInstance>();
     _surface = std::make_unique<VulkanSurface>(_window);
     _device = std::make_unique<VulkanDevice>();
+    _swapChain = std::make_unique<VulkanSwapChain>(_device.get(), _window);
 }
 
 Application::Application(int width, int height) : _width(width), _height(height) {

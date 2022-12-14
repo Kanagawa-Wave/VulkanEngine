@@ -15,7 +15,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 include_directories(src/
         vendor/glfw/include/
         vendor/glm/
-        C:/VulkanSDK/1.2.170.0/Include)
+        C:/VulkanSDK/1.3.236.0/Include)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
 file(GLOB PROJECT_HEADERS src/*.h src/rhi/*.h)
@@ -41,7 +41,7 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
         ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
         ${VENDORS_SOURCES})
 add_library(vulkan STATIC IMPORTED [GLOBAL])
-set_target_properties(vulkan PROPERTIES IMPORTED_LOCATION C:/VulkanSDK/1.2.170.0/Lib/vulkan-1.lib)
+set_target_properties(vulkan PROPERTIES IMPORTED_LOCATION C:/VulkanSDK/1.3.236.0/Lib/vulkan-1.lib)
 target_link_libraries(${PROJECT_NAME}
         glfw
         vulkan

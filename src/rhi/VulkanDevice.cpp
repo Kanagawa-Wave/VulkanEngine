@@ -6,6 +6,7 @@
 
 #include "VulkanSurface.h"
 #include "VulkanDevice.h"
+#include "VulkanSwapChain.h"
 
 VulkanDevice::VulkanDevice() {
     PickPhysicalDevice();
@@ -41,7 +42,16 @@ void VulkanDevice::PickPhysicalDevice() {
 
 bool VulkanDevice::CheckDevice(VkPhysicalDevice device) {
     QueueFamilyIndices indices = FindQueueFamilies(device);
-    return indices.isComplete();
+
+    bool extensionsSupported = CheckDeviceExtensionSupport(device);
+
+    bool swapChainAdequate = false;
+    if (extensionsSupported) {
+        SwapChainSupportDetails swapChainSupport = VulkanSwapChain::QuerySwapChainSupport(device);
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
+
+    return indices.isComplete() && extensionsSupported && swapChainAdequate;
 }
 
 QueueFamilyIndices VulkanDevice::FindQueueFamilies(VkPhysicalDevice device) {
@@ -94,7 +104,8 @@ void VulkanDevice::CreateLogicalDevice() {
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS)
         throw std::runtime_error("Failed to create logical device!");
@@ -103,4 +114,20 @@ void VulkanDevice::CreateLogicalDevice() {
 
     vkGetDeviceQueue(_device, indices.graphicsFamily.value(), 0, &_graphicsQueue);
     vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
+}
+
+bool VulkanDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device) {
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    for (const auto& extension : availableExtensions) {
+        requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
 }

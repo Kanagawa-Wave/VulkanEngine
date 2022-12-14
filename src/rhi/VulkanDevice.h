@@ -19,13 +19,20 @@ public:
     VulkanDevice();
     ~VulkanDevice();
 
+    const VkDevice& GetDevice() { return _device; }
+    const VkPhysicalDevice& GetPhysicalDevice() { return _physicalDevice; }
+    static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+
 private:
     void PickPhysicalDevice();
     bool CheckDevice(VkPhysicalDevice device);
-    QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
     void CreateLogicalDevice();
+    bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
 private:
+    const std::vector<const char*> deviceExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
     VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
     VkDevice _device = VK_NULL_HANDLE;
     VkQueue _graphicsQueue, _presentQueue = VK_NULL_HANDLE;

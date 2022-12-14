@@ -3,7 +3,7 @@
 #include "Application.h"
 
 int main() {
-    Application app(800, 600);
+    Application app(1280, 720);
 
     try {
         app.Run();
