@@ -31,6 +31,8 @@ void Application::OnDestroy() {
 void Application::InitWindow() {
     if (glfwInit() != GLFW_TRUE)
         throw std::exception("Failed to init glfw!");
+    else
+        std::cout << "Successfully initiated GLFW!" << std::endl;
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

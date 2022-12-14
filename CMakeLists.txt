@@ -9,7 +9,7 @@ option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(vendor/glfw)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
 
 
 include_directories(src/
@@ -50,7 +50,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAK
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>
         DEPENDS ${PROJECT_SHADERS})
 
 

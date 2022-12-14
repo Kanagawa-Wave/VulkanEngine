@@ -13,6 +13,9 @@ VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, GLFWwindow* window) : _pD
 }
 
 VulkanSwapChain::~VulkanSwapChain() {
+    for (auto imageView : _swapChainImageViews) {
+        vkDestroyImageView(_pDevice, imageView, nullptr);
+    }
     vkDestroySwapchainKHR(_pDevice, _swapChain, nullptr);
 }
 
