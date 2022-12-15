@@ -27,11 +27,14 @@ private:
     void CreateGraphicsPipeline();
     void CreateSyncObjects();
 
+    const int MAX_FRAMES_IN_FLIGHT = 2;
+    uint32_t _currentFrame = 0;
+
     VkPipeline _pipeline = VK_NULL_HANDLE;
     VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
-    VkSemaphore _imageAvailableSemaphore = VK_NULL_HANDLE;
-    VkSemaphore _renderFinishedSemaphore = VK_NULL_HANDLE;
-    VkFence _inFlightFence = VK_NULL_HANDLE;
+    std::vector<VkSemaphore> _imageAvailableSemaphores{};
+    std::vector<VkSemaphore> _renderFinishedSemaphores{};
+    std::vector<VkFence> _inFlightFences{};
 
     VkRenderPass _renderPass = VK_NULL_HANDLE;
 

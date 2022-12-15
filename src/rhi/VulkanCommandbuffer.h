@@ -10,22 +10,22 @@
 class VulkanCommandbuffer {
 public:
     VulkanCommandbuffer() = delete;
-    explicit VulkanCommandbuffer(const VkDevice& device);
+    VulkanCommandbuffer(const VkDevice& device, int numBuffers = 1);
     ~VulkanCommandbuffer();
 
-    const VkCommandBuffer& GetCommandBuffer() const { return _commandBuffer; }
+    const VkCommandBuffer& GetCommandBuffer(uint32_t index) const { return _commandBuffers[index]; }
 
-    void BeginCommandbuffer();
-    void EndCommandbuffer();
+    void BeginCommandbuffer(uint32_t index);
+    void EndCommandbuffer(uint32_t index);
 
-    void ResetCommandbuffer();
+    void ResetCommandbuffer(uint32_t index);
 
 private:
     void CreateCommandPool();
-    void CreateCommandBuffer();
+    void CreateCommandBuffer(int numBuffers);
 
     VkCommandPool _commandPool = VK_NULL_HANDLE;
-    VkCommandBuffer _commandBuffer = VK_NULL_HANDLE;
+    std::vector<VkCommandBuffer> _commandBuffers{};
     // do not own device
     const VkDevice& _pDevice;
 };
