@@ -13,6 +13,8 @@ public:
     ~VulkanPipeline();
 
 private:
+    void CreateGraphicsPipeline();
+
     VkPipeline _pipeline = VK_NULL_HANDLE;
     VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
 

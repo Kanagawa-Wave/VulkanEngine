@@ -6,7 +6,7 @@
 
 #include "VulkanShaders.h"
 
-VertexShader::VertexShader(VulkanDevice* device, const std::string& filePath) : VulkanShader(device, filePath) {
+VertexShader::VertexShader(const VkDevice& device, const std::string& filePath) : VulkanShader(device, filePath) {
 
 }
 
@@ -17,7 +17,7 @@ void VertexShader::CreatePipelineShaderStage() {
     _shaderStageInfo.pName = "main";
 }
 
-FragmentShader::FragmentShader(VulkanDevice* device, const std::string& filePath) : VulkanShader(device, filePath) {}
+FragmentShader::FragmentShader(const VkDevice& device, const std::string& filePath) : VulkanShader(device, filePath) {}
 
 void FragmentShader::CreatePipelineShaderStage() {
     _shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -26,7 +26,7 @@ void FragmentShader::CreatePipelineShaderStage() {
     _shaderStageInfo.pName = "main";
 }
 
-VulkanShader::VulkanShader(VulkanDevice *device, const std::string &filePath) : _pDevice(device->GetDevice()) {
+VulkanShader::VulkanShader(const VkDevice& device, const std::string &filePath) : _pDevice(device) {
     std::vector<char> vertShaderCode;
     ReadSPV(filePath, vertShaderCode);
     CreateShaderModule(vertShaderCode);
@@ -44,7 +44,7 @@ void VulkanShader::CreateShaderModule(const std::vector<char> &code) {
         std::cout << "Successfully created shader module!" << std::endl;
 }
 
-VulkanShader* VulkanShader::CreateShader(ShaderType type, VulkanDevice *device, const std::string &filePath) {
+VulkanShader* VulkanShader::CreateShader(ShaderType type, const VkDevice& device, const std::string &filePath) {
     switch (type) {
         case ShaderType::Vertex:
             return new VertexShader(device, filePath);

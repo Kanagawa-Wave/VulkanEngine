@@ -28,14 +28,14 @@ static void ReadSPV(const std::string& filePath, std::vector<char>& outByteCode)
 
 class VulkanShader {
 public:
-    VulkanShader(VulkanDevice* device, const std::string& filePath);
+    VulkanShader(const VkDevice& device, const std::string& filePath);
     ~VulkanShader();
 
     const VkPipelineShaderStageCreateInfo& GetShaderStageInfo() { return _shaderStageInfo; }
 
     virtual void CreatePipelineShaderStage() = 0;
 
-    static VulkanShader* CreateShader(ShaderType type, VulkanDevice* device, const std::string& filePath);
+    static VulkanShader* CreateShader(ShaderType type, const VkDevice& device, const std::string& filePath);
 
 private:
     void CreateShaderModule(const std::vector<char>& code);
@@ -51,14 +51,14 @@ protected:
 
 class VertexShader : public VulkanShader {
 public:
-    explicit VertexShader(VulkanDevice* device, const std::string& filePath);
+    explicit VertexShader(const VkDevice& device, const std::string& filePath);
 
     virtual void CreatePipelineShaderStage() override;
 };
 
 class FragmentShader : public VulkanShader {
 public:
-    explicit FragmentShader(VulkanDevice* device, const std::string& filePath);
+    explicit FragmentShader(const VkDevice& device, const std::string& filePath);
 
     virtual void CreatePipelineShaderStage() override;
 };
