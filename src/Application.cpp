@@ -43,9 +43,11 @@ void Application::InitWindow() {
         std::cout << "Successfully initiated GLFW!" << std::endl;
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     _window = glfwCreateWindow(_width, _height, "vkEngine", nullptr, nullptr);
+
+    glfwSetFramebufferSizeCallback(_window, VulkanPipeline::FramebufferResizeCallback);
 }
 
 void Application::InitVulkan() {

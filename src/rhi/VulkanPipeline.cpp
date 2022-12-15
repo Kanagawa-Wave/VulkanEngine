@@ -7,6 +7,7 @@
 #include "VulkanPipeline.h"
 #include "backends/imgui_impl_vulkan.h"
 
+bool VulkanPipeline::_framebufferResized = false;
 
 VulkanPipeline::VulkanPipeline(GLFWwindow* window) {
     _device = std::make_unique<VulkanDevice>();
@@ -27,6 +28,7 @@ VulkanPipeline::~VulkanPipeline() {
     }
 
     vkDestroyRenderPass(_device->GetDevice(), _renderPass, nullptr);
+    vkDestroyPipelineCache(_device->GetDevice(), _pipelineCache, nullptr);
     vkDestroyPipelineLayout(_device->GetDevice(), _pipelineLayout, nullptr);
     vkDestroyPipeline(_device->GetDevice(), _pipeline, nullptr);
 }
@@ -203,10 +205,18 @@ void VulkanPipeline::RecordCommandBuffer(uint32_t imageIndex) {
 
 void VulkanPipeline::DrawFrame() {
     vkWaitForFences(_device->GetDevice(), 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
-    vkResetFences(_device->GetDevice(), 1, &_inFlightFences[_currentFrame]);
 
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(_device->GetDevice(), _swapChain->GetSwapChain(), UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(_device->GetDevice(), _swapChain->GetSwapChain(), UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        _swapChain->RecreateSwapChain(_renderPass);
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("Failed to acquire swap chain image!");
+    }
+
+    vkResetFences(_device->GetDevice(), 1, &_inFlightFences[_currentFrame]);
 
     _commandBuffer->ResetCommandbuffer(_currentFrame);
     RecordCommandBuffer(imageIndex);
@@ -243,7 +253,13 @@ void VulkanPipeline::DrawFrame() {
 
     presentInfo.pImageIndices = &imageIndex;
 
-    vkQueuePresentKHR(_device->GetPresentQueue(), &presentInfo);
+    result = vkQueuePresentKHR(_device->GetPresentQueue(), &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
+        _framebufferResized = false;
+        _swapChain->RecreateSwapChain(_renderPass);
+    } else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
@@ -301,3 +317,5 @@ void VulkanPipeline::CreatePipelineCache() {
     else
         std::cout << "Successfully created pipeline cache!" << std::endl;
 }
+
+

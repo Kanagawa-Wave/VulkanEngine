@@ -21,6 +21,7 @@ public:
 
     static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
     void CreateFramebuffers(const VkRenderPass& renderPass);
+    void RecreateSwapChain(const VkRenderPass& renderPass);
 
     const VkSwapchainKHR& GetSwapChain() const { return _swapChain; }
     const VkFormat& GetImageFormat() const { return _swapChainImageFormat; }
@@ -28,11 +29,13 @@ public:
     const VkExtent2D& GetExtent() const { return _swapChainExtent; }
 
 private:
-    VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, GLFWwindow* window);
+    VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
     VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
     VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
-    void CreateSwapChain( GLFWwindow *window);
+    void CreateSwapChain();
     void CreateImageViews();
+
+    void OnDestroy();
 
 
     VkSwapchainKHR _swapChain = VK_NULL_HANDLE;
@@ -44,8 +47,9 @@ private:
     // TODO abstraction layer for framebuffer object
     std::vector<VkFramebuffer> _swapChainFramebuffers;
 
-    // do not own device
+    // do not own device and window
     const VkDevice& _pDevice;
+    GLFWwindow* _pWindow;
 };
 
 

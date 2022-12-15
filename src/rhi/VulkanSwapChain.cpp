@@ -8,27 +8,21 @@
 #include "VulkanSurface.h"
 
 
-VulkanSwapChain::VulkanSwapChain(const VkDevice& device, GLFWwindow* window) : _pDevice(device) {
-    CreateSwapChain(window);
+VulkanSwapChain::VulkanSwapChain(const VkDevice& device, GLFWwindow* window) : _pDevice(device) , _pWindow(window) {
+    CreateSwapChain();
     CreateImageViews();
 }
 
 VulkanSwapChain::~VulkanSwapChain() {
-    for (auto framebuffer : _swapChainFramebuffers) {
-        vkDestroyFramebuffer(_pDevice, framebuffer, nullptr);
-    }
-    for (auto imageView : _swapChainImageViews) {
-        vkDestroyImageView(_pDevice, imageView, nullptr);
-    }
-    vkDestroySwapchainKHR(_pDevice, _swapChain, nullptr);
+    OnDestroy();
 }
 
-void VulkanSwapChain::CreateSwapChain(GLFWwindow* window) {
+void VulkanSwapChain::CreateSwapChain() {
     SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(VulkanDevice::GetPhysicalDevice());
 
     VkSurfaceFormatKHR surfaceFormat  = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
-    VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, window);
+    VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
 
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
@@ -101,12 +95,12 @@ VkPresentModeKHR VulkanSwapChain::ChooseSwapPresentMode(const std::vector<VkPres
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D VulkanSwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window) {
+VkExtent2D VulkanSwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return capabilities.currentExtent;
     } else {
         int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
+        glfwGetFramebufferSize(_pWindow, &width, &height);
 
         VkExtent2D actualExtent = {
                 static_cast<uint32_t>(width),
@@ -191,4 +185,31 @@ void VulkanSwapChain::CreateFramebuffers(const VkRenderPass& renderPass) {
         else
             std::cout << "Successfully created framebuffer!" << std::endl;
     }
+}
+
+void VulkanSwapChain::RecreateSwapChain(const VkRenderPass& renderPass) {
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(_pWindow, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(_pWindow, &width, &height);
+        glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(_pDevice);
+
+    OnDestroy();
+
+    CreateSwapChain();
+    CreateImageViews();
+    CreateFramebuffers(renderPass);
+}
+
+void VulkanSwapChain::OnDestroy() {
+    for (auto framebuffer : _swapChainFramebuffers) {
+        vkDestroyFramebuffer(_pDevice, framebuffer, nullptr);
+    }
+    for (auto imageView : _swapChainImageViews) {
+        vkDestroyImageView(_pDevice, imageView, nullptr);
+    }
+    vkDestroySwapchainKHR(_pDevice, _swapChain, nullptr);
 }

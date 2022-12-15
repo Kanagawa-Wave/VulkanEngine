@@ -15,12 +15,15 @@ public:
     ~VulkanPipeline();
 
     void SetupImGUI();
-
     void RecordCommandBuffer(uint32_t imageIndex);
     void DrawFrame();
     void Wait();
 
     const VkRenderPass& GetRenderPass() const { return _renderPass; }
+
+    static void FramebufferResizeCallback(GLFWwindow* window, int width, int height) {
+        _framebufferResized = true;
+    }
 
 private:
     void CreateRenderPass();
@@ -30,6 +33,7 @@ private:
 
     const int MAX_FRAMES_IN_FLIGHT = 2;
     uint32_t _currentFrame = 0;
+    static bool _framebufferResized;
 
     VkPipeline _pipeline = VK_NULL_HANDLE;
     VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
