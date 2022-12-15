@@ -5,7 +5,7 @@
 #include "stdafx.h"
 
 #include "VulkanPipeline.h"
-
+#include "backends/imgui_impl_vulkan.h"
 
 
 VulkanPipeline::VulkanPipeline(GLFWwindow* window) {
@@ -263,4 +263,22 @@ void VulkanPipeline::CreateSyncObjects() {
 
 void VulkanPipeline::Wait() {
     vkDeviceWaitIdle(_device->GetDevice());
+}
+
+void VulkanPipeline::SetupImGUI() {
+    ImGui_ImplVulkan_InitInfo init_info = {};
+    init_info.Instance = VulkanInstance::Instance();
+    init_info.PhysicalDevice = _device->GetPhysicalDevice();
+    init_info.Device = _device->GetDevice();
+    init_info.QueueFamily = VulkanDevice::FindQueueFamilies().graphicsFamily.value();
+    init_info.Queue = _device->GetGraphicsQueue();
+    //init_info.PipelineCache = g_PipelineCache;
+    //init_info.DescriptorPool = g_DescriptorPool;
+    init_info.Subpass = 0;
+    init_info.MinImageCount = 2;
+    init_info.ImageCount = 3;
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.Allocator = nullptr;
+    init_info.CheckVkResultFn = nullptr;
+    //ImGui_ImplVulkan_Init(&init_info, _renderPass);
 }

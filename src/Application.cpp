@@ -6,6 +6,11 @@
 #include "Application.h"
 
 
+#include <imgui.h>
+
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_vulkan.h"
+
 void Application::Run() {
     while (!glfwWindowShouldClose(_window)) {
         glfwPollEvents();
@@ -19,6 +24,7 @@ void Application::Run() {
 void Application::OnInit() {
     InitWindow();
     InitVulkan();
+    InitImGUI();
 }
 
 void Application::OnUpdate() {
@@ -54,4 +60,19 @@ Application::Application(int width, int height) : _width(width), _height(height)
 
 Application::~Application() {
     OnDestroy();
+}
+
+void Application::InitImGUI() {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForVulkan(_window, true);
+    _pipeline->SetupImGUI();
 }

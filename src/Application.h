@@ -31,6 +31,7 @@ private:
 private:
     void InitWindow();
     void InitVulkan();
+    void InitImGUI();
 
 private:
     // window vars

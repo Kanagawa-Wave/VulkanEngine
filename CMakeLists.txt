@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
-add_subdirectory(vendor/glfw)
 
+add_subdirectory(vendor/glfw)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
 
@@ -15,9 +15,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
 include_directories(src/
         vendor/glfw/include/
         vendor/glm/
+        vendor/imgui/
         C:/VulkanSDK/1.3.236.0/Include)
 
-file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
+file(GLOB VENDORS_SOURCES
+        vendor/imgui/backends/imgui_impl_vulkan.h
+        vendor/imgui/backends/imgui_impl_vulkan.cpp
+        vendor/imgui/backends/imgui_impl_glfw.h
+        vendor/imgui/backends/imgui_impl_glfw.cpp
+        vendor/imgui/imgui.h
+        vendor/imgui/imgui.cpp
+        vendor/imgui/imgui_draw.cpp
+        vendor/imgui/imgui_tables.cpp
+        vendor/imgui/imgui_widgets.cpp
+        vendor/imgui/imgui_demo.cpp)
 file(GLOB PROJECT_HEADERS src/*.h src/rhi/*.h)
 file(GLOB PROJECT_SOURCES src/*.cpp src/rhi/*.cpp)
 file(GLOB PROJECT_SHADERS shaders/*.comp
@@ -41,7 +52,7 @@ add_definitions(-DGLFW_INCLUDE_NONE
         -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
         ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
-        ${VENDORS_SOURCES})
+        ${VENDORS_SOURCES} )
 add_library(vulkan STATIC IMPORTED [GLOBAL])
 set_target_properties(vulkan PROPERTIES IMPORTED_LOCATION C:/VulkanSDK/1.3.236.0/Lib/vulkan-1.lib)
 target_link_libraries(${PROJECT_NAME}

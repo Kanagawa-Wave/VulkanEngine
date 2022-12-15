@@ -14,6 +14,8 @@ public:
     VulkanPipeline(GLFWwindow* window);
     ~VulkanPipeline();
 
+    void SetupImGUI();
+
     void RecordCommandBuffer(uint32_t imageIndex);
     void DrawFrame();
     void Wait();
