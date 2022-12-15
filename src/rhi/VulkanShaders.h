@@ -16,8 +16,10 @@ enum class ShaderType {
 static void ReadSPV(const std::string& filePath, std::vector<char>& outByteCode) {
     std::ifstream file(filePath, std::ios::ate | std::ios::binary);
     if (!file.is_open())
-        throw std::runtime_error("failed to open file!");
+        throw std::runtime_error("Failed to open file!");
     size_t fileSize = (size_t) file.tellg();
+    if (fileSize == 0)
+        throw std::runtime_error(filePath + " doesn't exist!");
     std::vector<char> buffer(fileSize);
     file.seekg(0);
     file.read(buffer.data(), fileSize);

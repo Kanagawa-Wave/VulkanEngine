@@ -6,17 +6,21 @@
 #define VULKANENGINE_VULKANPIPELINE_H
 
 #include "VulkanShaders.h"
+#include "VulkanSwapChain.h"
 
 class VulkanPipeline {
 public:
-    VulkanPipeline(VulkanDevice* device);
+    VulkanPipeline(const VulkanDevice* device, const VulkanSwapChain* swapChain);
     ~VulkanPipeline();
 
 private:
+    void CreateRenderPass(const VulkanSwapChain* swapChain);
     void CreateGraphicsPipeline();
 
     VkPipeline _pipeline = VK_NULL_HANDLE;
     VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
+
+    VkRenderPass _renderPass = VK_NULL_HANDLE;
 
     // do not own device
     const VkDevice& _pDevice;

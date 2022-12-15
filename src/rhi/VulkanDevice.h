@@ -19,7 +19,7 @@ public:
     VulkanDevice();
     ~VulkanDevice();
 
-    const VkDevice& GetDevice() { return _device; }
+    const VkDevice& GetDevice() const { return _device; }
     const VkPhysicalDevice& GetPhysicalDevice() { return _physicalDevice; }
     static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 

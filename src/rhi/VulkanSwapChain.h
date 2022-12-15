@@ -21,6 +21,8 @@ public:
 
     static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 
+    const VkFormat& GetSwapChainImageFormat() const { return _swapChainImageFormat; }
+
 private:
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, GLFWwindow* window);
     VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
