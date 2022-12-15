@@ -12,6 +12,7 @@
 #include "rhi/VulkanSurface.h"
 #include "rhi/VulkanDevice.h"
 #include "rhi/VulkanSwapChain.h"
+#include "rhi/VulkanPipeline.h"
 
 class Application {
 public:
@@ -42,6 +43,7 @@ private:
     std::unique_ptr<VulkanSurface> _surface = nullptr;
     std::unique_ptr<VulkanDevice> _device = nullptr;
     std::unique_ptr<VulkanSwapChain> _swapChain = nullptr;
+    std::unique_ptr<VulkanPipeline> _pipeLine = nullptr;
 };
 
 

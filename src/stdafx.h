@@ -7,6 +7,7 @@
 
 #include <exception>
 #include <algorithm>
+#include <fstream>
 #include <set>
 #include <vector>
 #include <memory>
