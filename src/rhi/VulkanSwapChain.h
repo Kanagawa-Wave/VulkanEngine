@@ -20,21 +20,27 @@ public:
     ~VulkanSwapChain();
 
     static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+    void CreateFramebuffers(const VkRenderPass& renderPass);
 
     const VkFormat& GetSwapChainImageFormat() const { return _swapChainImageFormat; }
+
 
 private:
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, GLFWwindow* window);
     VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
     VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
     void CreateSwapChain(VulkanDevice *device, GLFWwindow *window);
-    void CreateImageViews(VulkanDevice* device);
+    void CreateImageViews();
+
 
     VkSwapchainKHR _swapChain = VK_NULL_HANDLE;
     std::vector<VkImage> _swapChainImages;
     std::vector<VkImageView> _swapChainImageViews;
     VkFormat _swapChainImageFormat{};
     VkExtent2D _swapChainExtent{};
+
+    // TODO abstraction layer for framebuffer object
+    std::vector<VkFramebuffer> _swapChainFramebuffers;
 
     // do not own device
     const VkDevice& _pDevice;

@@ -7,12 +7,14 @@
 #include "VulkanPipeline.h"
 
 
+
 VulkanPipeline::VulkanPipeline(const VulkanDevice* device, const VulkanSwapChain* swapChain) : _pDevice(device->GetDevice()) {
     CreateRenderPass(swapChain);
     CreateGraphicsPipeline();
 }
 
 VulkanPipeline::~VulkanPipeline() {
+    vkDestroyRenderPass(_pDevice, _renderPass, nullptr);
     vkDestroyPipelineLayout(_pDevice, _pipelineLayout, nullptr);
     vkDestroyPipeline(_pDevice, _pipeline, nullptr);
 }

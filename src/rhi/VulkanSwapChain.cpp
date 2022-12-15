@@ -7,12 +7,16 @@
 #include "VulkanSwapChain.h"
 #include "VulkanSurface.h"
 
+
 VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, GLFWwindow* window) : _pDevice(device->GetDevice()) {
     CreateSwapChain(device, window);
-    CreateImageViews(device);
+    CreateImageViews();
 }
 
 VulkanSwapChain::~VulkanSwapChain() {
+    for (auto framebuffer : _swapChainFramebuffers) {
+        vkDestroyFramebuffer(_pDevice, framebuffer, nullptr);
+    }
     for (auto imageView : _swapChainImageViews) {
         vkDestroyImageView(_pDevice, imageView, nullptr);
     }
@@ -137,7 +141,7 @@ SwapChainSupportDetails VulkanSwapChain::QuerySwapChainSupport(VkPhysicalDevice 
     return details;
 }
 
-void VulkanSwapChain::CreateImageViews(VulkanDevice* device) {
+void VulkanSwapChain::CreateImageViews() {
     _swapChainImageViews.resize(_swapChainImages.size());
 
     for (size_t i = 0; i < _swapChainImages.size(); i++) {
@@ -156,8 +160,32 @@ void VulkanSwapChain::CreateImageViews(VulkanDevice* device) {
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
 
-        if (vkCreateImageView(device->GetDevice(), &createInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS) {
+        if (vkCreateImageView(_pDevice, &createInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create image views!");
         }
+    }
+}
+
+void VulkanSwapChain::CreateFramebuffers(const VkRenderPass& renderPass) {
+    _swapChainFramebuffers.resize(_swapChainImageViews.size());
+
+    for (size_t i = 0; i < _swapChainImageViews.size(); i++) {
+        VkImageView attachments[] = {
+                _swapChainImageViews[i]
+        };
+
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = renderPass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.width = _swapChainExtent.width;
+        framebufferInfo.height = _swapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(_pDevice, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS)
+            throw std::runtime_error("Failed to create framebuffer!");
+        else
+            std::cout << "Successfully created framebuffer!" << std::endl;
     }
 }

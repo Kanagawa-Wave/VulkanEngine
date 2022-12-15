@@ -13,6 +13,8 @@ public:
     VulkanPipeline(const VulkanDevice* device, const VulkanSwapChain* swapChain);
     ~VulkanPipeline();
 
+    const VkRenderPass& GetRenderPass() const { return _renderPass; }
+
 private:
     void CreateRenderPass(const VulkanSwapChain* swapChain);
     void CreateGraphicsPipeline();

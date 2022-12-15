@@ -46,6 +46,7 @@ void Application::InitVulkan() {
     _device = std::make_unique<VulkanDevice>();
     _swapChain = std::make_unique<VulkanSwapChain>(_device.get(), _window);
     _pipeLine = std::make_unique<VulkanPipeline>(_device.get(), _swapChain.get());
+    _swapChain->CreateFramebuffers(_pipeLine->GetRenderPass());
 }
 
 Application::Application(int width, int height) : _width(width), _height(height) {
