@@ -7,25 +7,41 @@
 
 #include "VulkanShaders.h"
 #include "VulkanSwapChain.h"
+#include "VulkanCommandbuffer.h"
 
 class VulkanPipeline {
 public:
-    VulkanPipeline(const VulkanDevice* device, const VulkanSwapChain* swapChain);
+    VulkanPipeline(GLFWwindow* window);
     ~VulkanPipeline();
+
+    void RecordCommandBuffer(uint32_t imageIndex);
+    void DrawFrame();
+    void Wait();
 
     const VkRenderPass& GetRenderPass() const { return _renderPass; }
 
 private:
-    void CreateRenderPass(const VulkanSwapChain* swapChain);
+    void CreateRenderPass();
     void CreateGraphicsPipeline();
+    void CreateSyncObjects();
 
     VkPipeline _pipeline = VK_NULL_HANDLE;
     VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
+    VkSemaphore _imageAvailableSemaphore = VK_NULL_HANDLE;
+    VkSemaphore _renderFinishedSemaphore = VK_NULL_HANDLE;
+    VkFence _inFlightFence = VK_NULL_HANDLE;
 
     VkRenderPass _renderPass = VK_NULL_HANDLE;
 
+    // owner of device
+    std::unique_ptr<VulkanDevice> _device = nullptr;
+    std::unique_ptr<VulkanSwapChain> _swapChain = nullptr;
+    std::unique_ptr<VulkanCommandbuffer> _commandBuffer = nullptr;
+
     // do not own device
-    const VkDevice& _pDevice;
+    //const VkDevice& _pDevice;
+
+
 };
 
 

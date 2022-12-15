@@ -8,8 +8,8 @@
 #include "VulkanSurface.h"
 
 
-VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, GLFWwindow* window) : _pDevice(device->GetDevice()) {
-    CreateSwapChain(device, window);
+VulkanSwapChain::VulkanSwapChain(const VkDevice& device, GLFWwindow* window) : _pDevice(device) {
+    CreateSwapChain(window);
     CreateImageViews();
 }
 
@@ -23,8 +23,8 @@ VulkanSwapChain::~VulkanSwapChain() {
     vkDestroySwapchainKHR(_pDevice, _swapChain, nullptr);
 }
 
-void VulkanSwapChain::CreateSwapChain(VulkanDevice* device, GLFWwindow* window) {
-    SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device->GetPhysicalDevice());
+void VulkanSwapChain::CreateSwapChain(GLFWwindow* window) {
+    SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(VulkanDevice::GetPhysicalDevice());
 
     VkSurfaceFormatKHR surfaceFormat  = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -46,7 +46,7 @@ void VulkanSwapChain::CreateSwapChain(VulkanDevice* device, GLFWwindow* window) 
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = VulkanDevice::FindQueueFamilies(device->GetPhysicalDevice());
+    QueueFamilyIndices indices = VulkanDevice::FindQueueFamilies();
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     if (indices.graphicsFamily != indices.presentFamily) {
@@ -64,15 +64,15 @@ void VulkanSwapChain::CreateSwapChain(VulkanDevice* device, GLFWwindow* window) 
 
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    if (vkCreateSwapchainKHR(device->GetDevice(), &createInfo, nullptr, &_swapChain) != VK_SUCCESS) {
+    if (vkCreateSwapchainKHR(_pDevice, &createInfo, nullptr, &_swapChain) != VK_SUCCESS) {
         throw std::runtime_error("failed to create swap chain!");
     }
     else
         std::cout << "Successfully created swap chain!" << std::endl;
 
-    vkGetSwapchainImagesKHR(device->GetDevice(), _swapChain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(_pDevice, _swapChain, &imageCount, nullptr);
     _swapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(device->GetDevice(), _swapChain, &imageCount, _swapChainImages.data());
+    vkGetSwapchainImagesKHR(_pDevice, _swapChain, &imageCount, _swapChainImages.data());
 
     _swapChainImageFormat = surfaceFormat.format;
     _swapChainExtent = extent;
@@ -83,6 +83,9 @@ VkSurfaceFormatKHR VulkanSwapChain::ChooseSwapSurfaceFormat(const std::vector<Vk
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
             return availableFormat;
         }
+//        if (availableFormat.format == VK_FORMAT_R8G8B8A8_UINT && availableFormat.colorSpace == VK_COLOR_SPACE_DISPLAY_NATIVE_AMD) {
+//            return availableFormat;
+//        }
     }
 
     return availableFormats[0];

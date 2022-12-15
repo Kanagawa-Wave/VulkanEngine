@@ -12,6 +12,8 @@ void Application::Run() {
 
         OnUpdate();
     }
+
+    _pipeline->Wait();
 }
 
 void Application::OnInit() {
@@ -20,7 +22,7 @@ void Application::OnInit() {
 }
 
 void Application::OnUpdate() {
-
+    _pipeline->DrawFrame();
 }
 
 void Application::OnDestroy() {
@@ -43,10 +45,7 @@ void Application::InitWindow() {
 void Application::InitVulkan() {
     _instance = std::make_unique<VulkanInstance>();
     _surface = std::make_unique<VulkanSurface>(_window);
-    _device = std::make_unique<VulkanDevice>();
-    _swapChain = std::make_unique<VulkanSwapChain>(_device.get(), _window);
-    _pipeLine = std::make_unique<VulkanPipeline>(_device.get(), _swapChain.get());
-    _swapChain->CreateFramebuffers(_pipeLine->GetRenderPass());
+    _pipeline = std::make_unique<VulkanPipeline>(_window);
 }
 
 Application::Application(int width, int height) : _width(width), _height(height) {

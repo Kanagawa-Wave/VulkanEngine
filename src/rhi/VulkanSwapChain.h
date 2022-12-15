@@ -16,20 +16,22 @@ struct SwapChainSupportDetails {
 class VulkanSwapChain {
 public:
     VulkanSwapChain() = delete;
-    explicit VulkanSwapChain(VulkanDevice* device, GLFWwindow* window);
+    explicit VulkanSwapChain(const VkDevice& device, GLFWwindow* window);
     ~VulkanSwapChain();
 
     static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
     void CreateFramebuffers(const VkRenderPass& renderPass);
 
-    const VkFormat& GetSwapChainImageFormat() const { return _swapChainImageFormat; }
-
+    const VkSwapchainKHR& GetSwapChain() const { return _swapChain; }
+    const VkFormat& GetImageFormat() const { return _swapChainImageFormat; }
+    const VkFramebuffer& GetFramebuffer(uint32_t imageIndex) const { return _swapChainFramebuffers[imageIndex]; }
+    const VkExtent2D& GetExtent() const { return _swapChainExtent; }
 
 private:
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, GLFWwindow* window);
     VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
     VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
-    void CreateSwapChain(VulkanDevice *device, GLFWwindow *window);
+    void CreateSwapChain( GLFWwindow *window);
     void CreateImageViews();
 
 
