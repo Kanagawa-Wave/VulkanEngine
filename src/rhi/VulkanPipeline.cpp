@@ -13,6 +13,7 @@ VulkanPipeline::VulkanPipeline(GLFWwindow* window) {
     _swapChain = std::make_unique<VulkanSwapChain>(_device->GetDevice(), window);
     CreateRenderPass();
     CreateGraphicsPipeline();
+    CreatePipelineCache();
     _swapChain->CreateFramebuffers(_renderPass);
     _commandBuffer = std::make_unique<VulkanCommandbuffer>(_device->GetDevice(), MAX_FRAMES_IN_FLIGHT);
     CreateSyncObjects();
@@ -281,7 +282,7 @@ void VulkanPipeline::SetupImGUI() {
     init_info.Device = _device->GetDevice();
     init_info.QueueFamily = VulkanDevice::FindQueueFamilies().graphicsFamily.value();
     init_info.Queue = _device->GetGraphicsQueue();
-    //init_info.PipelineCache = g_PipelineCache;
+    init_info.PipelineCache = _pipelineCache;
     //init_info.DescriptorPool = g_DescriptorPool;
     init_info.Subpass = 0;
     init_info.MinImageCount = 2;
@@ -290,4 +291,13 @@ void VulkanPipeline::SetupImGUI() {
     init_info.Allocator = nullptr;
     init_info.CheckVkResultFn = nullptr;
     //ImGui_ImplVulkan_Init(&init_info, _renderPass);
+}
+
+void VulkanPipeline::CreatePipelineCache() {
+    VkPipelineCacheCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    if (vkCreatePipelineCache(_device->GetDevice(), &createInfo, nullptr, &_pipelineCache) != VK_SUCCESS)
+        throw std::runtime_error("Failed to create pipeline cache!");
+    else
+        std::cout << "Successfully created pipeline cache!" << std::endl;
 }

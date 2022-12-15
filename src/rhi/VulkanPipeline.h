@@ -25,6 +25,7 @@ public:
 private:
     void CreateRenderPass();
     void CreateGraphicsPipeline();
+    void CreatePipelineCache();
     void CreateSyncObjects();
 
     const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -32,6 +33,7 @@ private:
 
     VkPipeline _pipeline = VK_NULL_HANDLE;
     VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
+    VkPipelineCache _pipelineCache = VK_NULL_HANDLE;
     std::vector<VkSemaphore> _imageAvailableSemaphores{};
     std::vector<VkSemaphore> _renderFinishedSemaphores{};
     std::vector<VkFence> _inFlightFences{};
