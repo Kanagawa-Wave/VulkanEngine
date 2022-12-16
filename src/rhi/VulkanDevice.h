@@ -25,6 +25,8 @@ public:
     static const VkPhysicalDevice& GetPhysicalDevice() { return _physicalDevice; }
     static QueueFamilyIndices FindQueueFamilies();
 
+    void SubmitGraphicsQueue(VkCommandBuffer commandBuffer) const;
+
 private:
     void PickPhysicalDevice();
     bool CheckDevice(VkPhysicalDevice device);

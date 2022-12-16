@@ -11,11 +11,12 @@ VulkanCommandbuffer::VulkanCommandbuffer(VkDevice const &device) : _pDevice(devi
 }
 
 VulkanCommandbuffer::VulkanCommandbuffer(const VkDevice& device, int numBuffers) : _pDevice(device) {
-
+    CreateCommandPool();
     CreateCommandBuffer(numBuffers);
 }
 
 VulkanCommandbuffer::~VulkanCommandbuffer() {
+    vkFreeCommandBuffers(_pDevice, _commandPool, _commandBuffers.size(), _commandBuffers.data());
     vkDestroyCommandPool(_pDevice, _commandPool, nullptr);
 }
 

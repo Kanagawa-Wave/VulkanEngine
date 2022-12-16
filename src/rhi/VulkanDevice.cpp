@@ -155,3 +155,13 @@ bool VulkanDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device) {
 
     return requiredExtensions.empty();
 }
+
+void VulkanDevice::SubmitGraphicsQueue(VkCommandBuffer commandBuffer) const {
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(_graphicsQueue);
+}

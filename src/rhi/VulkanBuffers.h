@@ -39,23 +39,30 @@ struct Vertex {
     }
 };
 
-class VertexBuffer {
+class Buffer {
 public:
-    explicit VertexBuffer(const VkDevice& device, const VkPhysicalDevice& phyDevice);
-    ~VertexBuffer();
-
-    void CreateVertexBuffer(std::vector<Vertex> vertices);
+    explicit Buffer(const VulkanDevice* device);
+    ~Buffer();
 
     const VkBuffer& GetBuffer() const { return _buffer; };
 
-private:
+protected:
+    void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+    void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
     uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     VkBuffer _buffer = VK_NULL_HANDLE;
     VkDeviceMemory _memory = VK_NULL_HANDLE;
 
-    const VkDevice& _pDevice = VK_NULL_HANDLE;
-    const VkPhysicalDevice& _pPhysicalDevice = VK_NULL_HANDLE;
+    const VulkanDevice* c_Device;
+};
+
+class VertexBuffer : public Buffer {
+public:
+    explicit VertexBuffer(const VulkanDevice* device);
+    ~VertexBuffer();
+
+    void CreateVertexBuffer(std::vector<Vertex> vertices);
 };
 
 

@@ -17,7 +17,7 @@ VulkanPipeline::VulkanPipeline(GLFWwindow* window) {
     CreatePipelineCache();
     _swapChain->CreateFramebuffers(_renderPass);
     _commandBuffer = std::make_unique<VulkanCommandbuffer>(_device->GetDevice());
-    _vbo = std::make_unique<VertexBuffer>(_device->GetDevice(), _device->GetPhysicalDevice());
+    _vbo = std::make_unique<VertexBuffer>(_device.get());
     _vbo->CreateVertexBuffer(vertices);
     _commandBuffer->CreateCommandBuffer(MAX_FRAMES_IN_FLIGHT);
     CreateSyncObjects();
