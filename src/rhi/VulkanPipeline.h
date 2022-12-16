@@ -11,7 +11,8 @@
 
 class VulkanPipeline {
 public:
-    VulkanPipeline(GLFWwindow* window);
+    VulkanPipeline() = delete;
+    explicit VulkanPipeline(GLFWwindow* window);
     ~VulkanPipeline();
 
     void SetupImGUI();
@@ -34,6 +35,13 @@ private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
     uint32_t _currentFrame = 0;
     static bool _framebufferResized;
+
+    // TODO: move this to a standalone renderer class
+    const std::vector<Vertex> vertices = {
+            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    };
 
     VkPipeline _pipeline = VK_NULL_HANDLE;
     VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;

@@ -8,6 +8,7 @@
 #include <exception>
 #include <algorithm>
 #include <fstream>
+#include <array>
 #include <set>
 #include <vector>
 #include <memory>
