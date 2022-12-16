@@ -17,8 +17,12 @@ VulkanPipeline::VulkanPipeline(GLFWwindow* window) {
     CreatePipelineCache();
     _swapChain->CreateFramebuffers(_renderPass);
     _commandBuffer = std::make_unique<VulkanCommandbuffer>(_device->GetDevice());
+
     _vbo = std::make_unique<VertexBuffer>(_device.get());
     _vbo->CreateVertexBuffer(vertices);
+    _ibo = std::make_unique<IndexBuffer>(_device.get());
+    _ibo->CreateIndexBuffer(indices);
+
     _commandBuffer->CreateCommandBuffer(MAX_FRAMES_IN_FLIGHT);
     CreateSyncObjects();
 }
@@ -208,7 +212,9 @@ void VulkanPipeline::RecordCommandBuffer(uint32_t imageIndex) {
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(_commandBuffer->GetCommandBuffer(_currentFrame), 0, 1, vertexBuffers, offsets);
 
-    vkCmdDraw(_commandBuffer->GetCommandBuffer(_currentFrame), 3, 1, 0, 0);
+    vkCmdBindIndexBuffer(_commandBuffer->GetCommandBuffer(_currentFrame), _ibo->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+
+    vkCmdDrawIndexed(_commandBuffer->GetCommandBuffer(_currentFrame), indices.size(), 1, 0, 0, 0);
 
     vkCmdEndRenderPass(_commandBuffer->GetCommandBuffer(_currentFrame));
 

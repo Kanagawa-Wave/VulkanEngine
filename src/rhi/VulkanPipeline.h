@@ -39,9 +39,13 @@ private:
 
     // TODO: move this to a standalone renderer class
     const std::vector<Vertex> vertices = {
-            {{0.0f, -0.5f}, {1.0f, 0.0f, 1.0f}},
-            {{0.5f, 0.5f}, {0.0f, 1.0f, 1.0f}},
-            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    };
+    const std::vector<uint16_t> indices = {
+            0, 1, 2, 2, 3, 0
     };
 
     VkPipeline _pipeline = VK_NULL_HANDLE;
@@ -59,6 +63,7 @@ private:
     std::unique_ptr<VulkanCommandbuffer> _commandBuffer = nullptr;
 
     std::unique_ptr<VertexBuffer> _vbo = nullptr;
+    std::unique_ptr<IndexBuffer> _ibo = nullptr;
 
     // do not own device
     //const VkDevice& _pDevice;

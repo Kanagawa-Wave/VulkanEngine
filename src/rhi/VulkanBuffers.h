@@ -65,5 +65,13 @@ public:
     void CreateVertexBuffer(std::vector<Vertex> vertices);
 };
 
+class IndexBuffer : public Buffer {
+public:
+    explicit IndexBuffer(const VulkanDevice* device);
+    ~IndexBuffer();
+
+    void CreateIndexBuffer(std::vector<uint16_t> indices);
+};
+
 
 #endif //VULKANENGINE_VULKANBUFFERS_H

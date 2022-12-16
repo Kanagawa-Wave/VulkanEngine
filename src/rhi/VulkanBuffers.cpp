@@ -55,8 +55,7 @@ uint32_t Buffer::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void
-Buffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
+void Buffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
                      VkDeviceMemory &bufferMemory) {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -97,7 +96,28 @@ void Buffer::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
 }
 
 
+IndexBuffer::IndexBuffer(const VulkanDevice *device)
+    : Buffer(device) {
+}
 
+IndexBuffer::~IndexBuffer() = default;
 
+void IndexBuffer::CreateIndexBuffer(std::vector<uint16_t> indices) {
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
+    void* data;
+    vkMapMemory(c_Device->GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indices.data(), (size_t) bufferSize);
+    vkUnmapMemory(c_Device->GetDevice(), stagingBufferMemory);
+
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _buffer, _memory);
+
+    CopyBuffer(stagingBuffer, _buffer, bufferSize);
+
+    vkDestroyBuffer(c_Device->GetDevice(), stagingBuffer, nullptr);
+    vkFreeMemory(c_Device->GetDevice(), stagingBufferMemory, nullptr);
+}
