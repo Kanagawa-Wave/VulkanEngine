@@ -8,6 +8,7 @@
 #include "VulkanShaders.h"
 #include "VulkanSwapChain.h"
 #include "VulkanCommandbuffer.h"
+#include "VulkanBuffers.h"
 
 class VulkanPipeline {
 public:
@@ -38,8 +39,8 @@ private:
 
     // TODO: move this to a standalone renderer class
     const std::vector<Vertex> vertices = {
-            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{0.0f, -0.5f}, {1.0f, 0.0f, 1.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 1.0f}},
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
     };
 
@@ -56,6 +57,8 @@ private:
     std::unique_ptr<VulkanDevice> _device = nullptr;
     std::unique_ptr<VulkanSwapChain> _swapChain = nullptr;
     std::unique_ptr<VulkanCommandbuffer> _commandBuffer = nullptr;
+
+    std::unique_ptr<VertexBuffer> _vbo = nullptr;
 
     // do not own device
     //const VkDevice& _pDevice;

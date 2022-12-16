@@ -16,7 +16,10 @@ VulkanPipeline::VulkanPipeline(GLFWwindow* window) {
     CreateGraphicsPipeline();
     CreatePipelineCache();
     _swapChain->CreateFramebuffers(_renderPass);
-    _commandBuffer = std::make_unique<VulkanCommandbuffer>(_device->GetDevice(), MAX_FRAMES_IN_FLIGHT);
+    _commandBuffer = std::make_unique<VulkanCommandbuffer>(_device->GetDevice());
+    _vbo = std::make_unique<VertexBuffer>(_device->GetDevice(), _device->GetPhysicalDevice());
+    _vbo->CreateVertexBuffer(vertices);
+    _commandBuffer->CreateCommandBuffer(MAX_FRAMES_IN_FLIGHT);
     CreateSyncObjects();
 }
 
@@ -51,7 +54,7 @@ void VulkanPipeline::CreateGraphicsPipeline() {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
+    vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t) attributeDescriptions.size();
     vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
@@ -200,6 +203,10 @@ void VulkanPipeline::RecordCommandBuffer(uint32_t imageIndex) {
     scissor.offset = {0, 0};
     scissor.extent = _swapChain->GetExtent();
     vkCmdSetScissor(_commandBuffer->GetCommandBuffer(_currentFrame), 0, 1, &scissor);
+
+    VkBuffer vertexBuffers[] = {_vbo->GetBuffer()};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(_commandBuffer->GetCommandBuffer(_currentFrame), 0, 1, vertexBuffers, offsets);
 
     vkCmdDraw(_commandBuffer->GetCommandBuffer(_currentFrame), 3, 1, 0, 0);
 

@@ -6,9 +6,12 @@
 
 #include "VulkanCommandbuffer.h"
 
+VulkanCommandbuffer::VulkanCommandbuffer(VkDevice const &device) : _pDevice(device)  {
+    CreateCommandPool();
+}
 
 VulkanCommandbuffer::VulkanCommandbuffer(const VkDevice& device, int numBuffers) : _pDevice(device) {
-    CreateCommandPool();
+
     CreateCommandBuffer(numBuffers);
 }
 
@@ -63,3 +66,4 @@ void VulkanCommandbuffer::EndCommandbuffer(uint32_t index) {
 void VulkanCommandbuffer::ResetCommandbuffer(uint32_t index) {
     vkResetCommandBuffer(_commandBuffers[index], /*VkCommandBufferResetFlagBits*/ 0);
 }
+
