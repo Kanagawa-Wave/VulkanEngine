@@ -4,6 +4,8 @@
 
 
 #include "stdafx.h"
+#include "Core.h"
+
 #include "VulkanInstance.h"
 
 VkInstance VulkanInstance::_instance = VK_NULL_HANDLE;
@@ -30,7 +32,7 @@ void VulkanInstance::CreateInstance() {
 
 #ifndef NDEBUG
     if (!CheckValidationLayerSupport()) {
-        throw std::runtime_error("validation layers requested, but not available!");
+        LOG_ERROR("validation layers requested, but not available!");
     }
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 #endif
@@ -55,9 +57,9 @@ void VulkanInstance::CreateInstance() {
 #endif
 
     if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create Vulkan instance!");
+        LOG_ERROR("Failed to create Vulkan instance!")
     else
-        std::cout << "Successfully created Vulkan instance!" << std::endl;
+        LOG_TRACE("Successfully created Vulkan instance!")
 }
 
 bool VulkanInstance::CheckValidationLayerSupport() {
@@ -96,16 +98,16 @@ std::vector<const char *> VulkanInstance::GetRequiredExtensions() {
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensions.data());
 
-    std::cout << "Available extensions: \n";
+    LOG_TRACE("Available extensions: ")
 
     for (const auto& availableExtension : availableExtensions) {
-        std::cout << '\t' << availableExtension.extensionName << std::endl;
+        LOG_TRACE("\t{0}", availableExtension.extensionName)
     }
 
     std::vector<const char*> extensions;
-    std::cout << "GLFW required extensions: \n";
+    LOG_TRACE("GLFW required extensions: ")
     for (uint32_t i = 0; i < glfwExtensionCount; i++) {
-        std::cout << "\t" << glfwExtensions[i] << std::endl;
+        LOG_TRACE("\t{0}", glfwExtensions[i])
         extensions.push_back(glfwExtensions[i]);
     }
 
@@ -113,9 +115,9 @@ std::vector<const char *> VulkanInstance::GetRequiredExtensions() {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
-    std::cout << "Enabled extensions: \n";
+    LOG_TRACE("Enabled extensions: ")
     for (auto extension : extensions)
-        std::cout << "\t" << extension << std::endl;
+        LOG_TRACE("\t{0}", extension)
 
     return extensions;
 }
@@ -126,7 +128,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
         void* pUserData) {
 
-    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+    LOG_ERROR("Validation layer: {0}", pCallbackData->pMessage)
 
     return VK_FALSE;
 }
@@ -138,7 +140,7 @@ void VulkanInstance::SetupDebugManager() {
     PopulateDebugMessengerCreateInfo(createInfo);
 
     if (CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS)
-        throw std::runtime_error("failed to set up debug messenger!");
+        LOG_ERROR("failed to set up debug messenger!");
 }
 
 void VulkanInstance::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {

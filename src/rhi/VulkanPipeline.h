@@ -9,6 +9,7 @@
 #include "VulkanSwapChain.h"
 #include "VulkanCommandbuffer.h"
 #include "VulkanBuffers.h"
+#include "DescriptorPool.h"
 
 class VulkanPipeline {
 public:
@@ -64,11 +65,8 @@ private:
 
     std::unique_ptr<VertexBuffer> _vbo = nullptr;
     std::unique_ptr<IndexBuffer> _ibo = nullptr;
-
-    // do not own device
-    //const VkDevice& _pDevice;
-
-
+    std::unique_ptr<UniformBuffer> _ubo = nullptr;
+    std::unique_ptr<DescriptorPool> _descriptorPool = nullptr;
 };
 
 

@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include "Core.h"
 
 #include "VulkanCommandbuffer.h"
 
@@ -29,9 +30,9 @@ void VulkanCommandbuffer::CreateCommandPool() {
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
     if (vkCreateCommandPool(_pDevice, &poolInfo, nullptr, &_commandPool) != VK_SUCCESS)
-        throw std::runtime_error("failed to create command pool!");
+        LOG_ERROR("failed to create command pool!")
     else
-        std::cout << "Successfully created command pool!" << std::endl;
+        LOG_TRACE("Successfully created command pool!")
 }
 
 void VulkanCommandbuffer::CreateCommandBuffer(int numBuffers) {
@@ -44,9 +45,9 @@ void VulkanCommandbuffer::CreateCommandBuffer(int numBuffers) {
     allocInfo.commandBufferCount = numBuffers;
 
     if (vkAllocateCommandBuffers(_pDevice, &allocInfo, _commandBuffers.data()) != VK_SUCCESS)
-        throw std::runtime_error("Failed to allocate command buffers!");
+        LOG_ERROR("Failed to allocate command buffers!")
     else
-        std::cout << "Successfully created " << numBuffers << " command buffers!" << std::endl;
+        LOG_TRACE("Successfully created {0} command buffers!", numBuffers)
 }
 
 void VulkanCommandbuffer::BeginCommandbuffer(uint32_t index) {
@@ -54,13 +55,13 @@ void VulkanCommandbuffer::BeginCommandbuffer(uint32_t index) {
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
     if (vkBeginCommandBuffer(_commandBuffers[index], &beginInfo) != VK_SUCCESS) {
-        throw std::runtime_error("failed to begin recording command buffer!");
+        LOG_ERROR("failed to begin recording command buffer!")
     }
 }
 
 void VulkanCommandbuffer::EndCommandbuffer(uint32_t index) {
     if (vkEndCommandBuffer(_commandBuffers[index]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to record command buffer!");
+        LOG_ERROR("failed to record command buffer!")
     }
 }
 

@@ -3,6 +3,8 @@
 //
 
 #include "stdafx.h"
+#include "Core.h"
+
 #include "Application.h"
 
 
@@ -10,6 +12,7 @@
 
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_vulkan.h"
+
 
 void Application::Run() {
     while (!glfwWindowShouldClose(_window)) {
@@ -22,6 +25,7 @@ void Application::Run() {
 }
 
 void Application::OnInit() {
+    InitLogger();
     InitWindow();
     InitVulkan();
     InitImGUI();
@@ -36,11 +40,16 @@ void Application::OnDestroy() {
     glfwTerminate();
 }
 
+void Application::InitLogger() {
+    Log::Init();
+    LOG_INFO("Successfully initiated Logger!")
+}
+
 void Application::InitWindow() {
     if (glfwInit() != GLFW_TRUE)
-        throw std::exception("Failed to init glfw!");
+        LOG_ERROR("Failed to init glfw!")
     else
-        std::cout << "Successfully initiated GLFW!" << std::endl;
+        LOG_INFO("Successfully initiated GLFW!")
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -54,6 +63,7 @@ void Application::InitVulkan() {
     _instance = std::make_unique<VulkanInstance>();
     _surface = std::make_unique<VulkanSurface>(_window);
     _pipeline = std::make_unique<VulkanPipeline>(_window);
+    LOG_INFO("Successfully initiated Vulkan backend!")
 }
 
 Application::Application(int width, int height) : _width(width), _height(height) {
@@ -68,8 +78,8 @@ void Application::InitImGUI() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -78,3 +88,4 @@ void Application::InitImGUI() {
     ImGui_ImplGlfw_InitForVulkan(_window, true);
     _pipeline->SetupImGUI();
 }
+

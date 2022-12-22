@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include "Core.h"
 
 #include "VulkanPipeline.h"
 #include "backends/imgui_impl_vulkan.h"
@@ -12,9 +13,14 @@ bool VulkanPipeline::_framebufferResized = false;
 VulkanPipeline::VulkanPipeline(GLFWwindow* window) {
     _device = std::make_unique<VulkanDevice>();
     _swapChain = std::make_unique<VulkanSwapChain>(_device->GetDevice(), window);
+
     CreateRenderPass();
+
+    _ubo = std::make_unique<UniformBuffer>(_device.get());
+
     CreateGraphicsPipeline();
     CreatePipelineCache();
+
     _swapChain->CreateFramebuffers(_renderPass);
     _commandBuffer = std::make_unique<VulkanCommandbuffer>(_device->GetDevice());
 
@@ -22,6 +28,10 @@ VulkanPipeline::VulkanPipeline(GLFWwindow* window) {
     _vbo->CreateVertexBuffer(vertices);
     _ibo = std::make_unique<IndexBuffer>(_device.get());
     _ibo->CreateIndexBuffer(indices);
+    _ubo->CreateUniformBuffers(MAX_FRAMES_IN_FLIGHT);
+
+    _descriptorPool = std::make_unique<DescriptorPool>(_device->GetDevice(), MAX_FRAMES_IN_FLIGHT);
+    _ubo->CreateDescriptorSets(_descriptorPool->GetDescriptorPool(), MAX_FRAMES_IN_FLIGHT);
 
     _commandBuffer->CreateCommandBuffer(MAX_FRAMES_IN_FLIGHT);
     CreateSyncObjects();
@@ -79,7 +89,7 @@ void VulkanPipeline::CreateGraphicsPipeline() {
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
     VkPipelineMultisampleStateCreateInfo multisampling{};
@@ -113,13 +123,13 @@ void VulkanPipeline::CreateGraphicsPipeline() {
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = _ubo->GetDescriptorSetLayoutPtr();
 
     if (vkCreatePipelineLayout(_device->GetDevice(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create pipeline layout!");
+        LOG_ERROR("Failed to create pipeline layout!")
     else
-        std::cout << "Successfully created pipeline layout!" << std::endl;
+        LOG_TRACE("Successfully created pipeline layout!")
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -138,9 +148,9 @@ void VulkanPipeline::CreateGraphicsPipeline() {
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
     if (vkCreateGraphicsPipelines(_device->GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS)
-        throw std::runtime_error("failed to create graphics pipeline!");
+        LOG_ERROR("failed to create graphics pipeline!")
     else
-        std::cout << "Successfully created graphics pipeline!" << std::endl;
+        LOG_TRACE("Successfully created graphics pipeline!")
 }
 
 void VulkanPipeline::CreateRenderPass() {
@@ -171,9 +181,9 @@ void VulkanPipeline::CreateRenderPass() {
     renderPassInfo.pSubpasses = &subpass;
 
     if (vkCreateRenderPass(_device->GetDevice(), &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create render pass!");
+        LOG_ERROR("Failed to create render pass!")
     else
-        std::cout << "Successfully created render pass" << std::endl;
+        LOG_TRACE("Successfully created render pass")
 }
 
 void VulkanPipeline::RecordCommandBuffer(uint32_t imageIndex) {
@@ -214,7 +224,9 @@ void VulkanPipeline::RecordCommandBuffer(uint32_t imageIndex) {
 
     vkCmdBindIndexBuffer(_commandBuffer->GetCommandBuffer(_currentFrame), _ibo->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
 
-    vkCmdDrawIndexed(_commandBuffer->GetCommandBuffer(_currentFrame), indices.size(), 1, 0, 0, 0);
+    vkCmdBindDescriptorSets(_commandBuffer->GetCommandBuffer(_currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1, _ubo->GetDescriptorSetPtr(_currentFrame), 0, nullptr);
+
+    vkCmdDrawIndexed(_commandBuffer->GetCommandBuffer(_currentFrame), (uint32_t) indices.size(), 1, 0, 0, 0);
 
     vkCmdEndRenderPass(_commandBuffer->GetCommandBuffer(_currentFrame));
 
@@ -231,13 +243,31 @@ void VulkanPipeline::DrawFrame() {
         _swapChain->RecreateSwapChain(_renderPass);
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        throw std::runtime_error("Failed to acquire swap chain image!");
+        LOG_ERROR("Failed to acquire swap chain image!");
     }
 
     vkResetFences(_device->GetDevice(), 1, &_inFlightFences[_currentFrame]);
 
     _commandBuffer->ResetCommandbuffer(_currentFrame);
     RecordCommandBuffer(imageIndex);
+
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        UniformBuffer::UniformBufferObject ubo{};
+        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        ubo.proj = glm::perspective(glm::radians(45.0f), (float) _swapChain->GetExtent().width / (float) _swapChain->GetExtent().height, 0.1f, 10.0f);
+
+        ubo.proj[1][1] *= -1;
+
+        _ubo->UploadUniformBuffer(_currentFrame, ubo);
+    }
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -256,7 +286,7 @@ void VulkanPipeline::DrawFrame() {
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     if (vkQueueSubmit(_device->GetGraphicsQueue(), 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to submit draw command buffer!");
+        LOG_ERROR("failed to submit draw command buffer!");
     }
 
     VkPresentInfoKHR presentInfo{};
@@ -276,7 +306,7 @@ void VulkanPipeline::DrawFrame() {
         _framebufferResized = false;
         _swapChain->RecreateSwapChain(_renderPass);
     } else if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to present swap chain image!");
+        LOG_ERROR("failed to present swap chain image!");
     }
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -298,10 +328,10 @@ void VulkanPipeline::CreateSyncObjects() {
         if (vkCreateSemaphore(_device->GetDevice(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
             vkCreateSemaphore(_device->GetDevice(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
             vkCreateFence(_device->GetDevice(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
+            LOG_ERROR("failed to create synchronization objects for a frame!");
         }
     }
-    std::cout << "Successfully created sync objects!" << std::endl;
+    LOG_TRACE("Successfully created sync objects!")
 
 }
 
@@ -331,9 +361,9 @@ void VulkanPipeline::CreatePipelineCache() {
     VkPipelineCacheCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
     if (vkCreatePipelineCache(_device->GetDevice(), &createInfo, nullptr, &_pipelineCache) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create pipeline cache!");
+        LOG_ERROR("Failed to create pipeline cache!")
     else
-        std::cout << "Successfully created pipeline cache!" << std::endl;
+        LOG_TRACE("Successfully created pipeline cache!")
 }
 
 

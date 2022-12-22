@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include "Core.h"
 
 #include "VulkanSurface.h"
 
@@ -18,7 +19,7 @@ VulkanSurface::~VulkanSurface() {
 
 void VulkanSurface::CreateSurface(GLFWwindow *window) {
     if (glfwCreateWindowSurface(VulkanInstance::Instance(), window, nullptr, &_surface) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create window surface!");
+        LOG_ERROR("Failed to create window surface!")
     else
-        std::cout << "Successfully created Vulkan surface!" << std::endl;
+        LOG_TRACE("Successfully created Vulkan surface!")
 }

@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include "Core.h"
 
 #include "VulkanSwapChain.h"
 #include "VulkanSurface.h"
@@ -59,10 +60,10 @@ void VulkanSwapChain::CreateSwapChain() {
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
     if (vkCreateSwapchainKHR(_pDevice, &createInfo, nullptr, &_swapChain) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create swap chain!");
+        LOG_ERROR("failed to create swap chain!")
     }
     else
-        std::cout << "Successfully created swap chain!" << std::endl;
+        LOG_TRACE("Successfully created swap chain!")
 
     vkGetSwapchainImagesKHR(_pDevice, _swapChain, &imageCount, nullptr);
     _swapChainImages.resize(imageCount);
@@ -158,7 +159,7 @@ void VulkanSwapChain::CreateImageViews() {
         createInfo.subresourceRange.layerCount = 1;
 
         if (vkCreateImageView(_pDevice, &createInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image views!");
+            LOG_ERROR("failed to create image views!");
         }
     }
 }
@@ -181,9 +182,9 @@ void VulkanSwapChain::CreateFramebuffers(const VkRenderPass& renderPass) {
         framebufferInfo.layers = 1;
 
         if (vkCreateFramebuffer(_pDevice, &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS)
-            throw std::runtime_error("Failed to create framebuffer!");
+            LOG_ERROR("Failed to create framebuffer!")
         else
-            std::cout << "Successfully created framebuffer!" << std::endl;
+            LOG_TRACE("Successfully created framebuffer!")
     }
 }
 

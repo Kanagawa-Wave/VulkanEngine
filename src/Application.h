@@ -29,6 +29,7 @@ private:
     void OnDestroy();
 
 private:
+    void InitLogger();
     void InitWindow();
     void InitVulkan();
     void InitImGUI();

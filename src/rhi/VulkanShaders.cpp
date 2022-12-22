@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include "Core.h"
 
 #include "VulkanShaders.h"
 
@@ -39,20 +40,9 @@ void VulkanShader::CreateShaderModule(const std::vector<char> &code) {
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
     if (vkCreateShaderModule(_pDevice, &createInfo, nullptr, &_shader) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create shader module!");
+        LOG_ERROR("Failed to create shader module!")
     else
-        std::cout << "Successfully created shader module!" << std::endl;
-}
-
-VulkanShader* VulkanShader::CreateShader(ShaderType type, const VkDevice& device, const std::string &filePath) {
-    switch (type) {
-        case ShaderType::Vertex:
-            return new VertexShader(device, filePath);
-        case ShaderType::Fragment:
-            return new FragmentShader(device, filePath);
-        default:
-            throw std::runtime_error("Trying to create invalid shader module type!");
-    }
+        LOG_TRACE("Successfully created shader module!")
 }
 
 VulkanShader::~VulkanShader() {

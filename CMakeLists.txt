@@ -3,6 +3,11 @@ project(VulkanEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 
+option (GFX_API_DX12 "Build with DX12" OFF)
+option (GFX_API_VK "Build with Vulkan" ON)
+set(GFX_API_DX12 OFF)
+set(GFX_API_VK ON)
+
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
@@ -11,11 +16,14 @@ add_subdirectory(vendor/glfw)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
 
+add_compile_options(/MP)
 
 include_directories(src/
         vendor/glfw/include/
         vendor/glm/
         vendor/imgui/
+        vendor/VulkanMemoryAllocator/include
+        vendor/spdlog/include
         C:/VulkanSDK/1.3.236.0/Include)
 
 file(GLOB VENDORS_SOURCES

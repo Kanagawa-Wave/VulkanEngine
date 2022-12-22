@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include "Core.h"
 
 #include "VulkanSurface.h"
 #include "VulkanDevice.h"
@@ -24,7 +25,7 @@ void VulkanDevice::PickPhysicalDevice() {
     vkEnumeratePhysicalDevices(VulkanInstance::Instance(), &deviceCount, nullptr);
 
     if (deviceCount == 0)
-        throw std::runtime_error("Failed to find GPU with Vulkan support!");
+        LOG_ERROR("Failed to find GPU with Vulkan support!")
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(VulkanInstance::Instance(), &deviceCount, devices.data());
@@ -37,9 +38,9 @@ void VulkanDevice::PickPhysicalDevice() {
     }
 
     if (_physicalDevice == VK_NULL_HANDLE)
-        throw std::runtime_error("Failed to find a suitable GPU!");
+        LOG_ERROR("Failed to find a suitable GPU!")
     else
-        std::cout << "Successfully detected physical device!" << std::endl;
+        LOG_TRACE("Successfully detected physical device!")
 }
 
 bool VulkanDevice::CheckDevice(VkPhysicalDevice device) {
@@ -132,9 +133,9 @@ void VulkanDevice::CreateLogicalDevice() {
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create logical device!");
+        LOG_ERROR("Failed to create logical device!")
     else
-        std::cout << "Successfully created logical device!" << std::endl;
+        LOG_TRACE("Successfully created logical device!")
 
     vkGetDeviceQueue(_device, indices.graphicsFamily.value(), 0, &_graphicsQueue);
     vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
